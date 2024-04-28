@@ -1,6 +1,7 @@
 const express=require('express')
 const cors =require('cors')
 const app =express()
+const jwt=require('jsonwebtoken')
 require('dotenv').config()
 const port =process.env.PORT || 5000
 
@@ -31,6 +32,15 @@ async function run() {
     const userCollection= client.db("bistroDb").collection("users");
     const reviewCollection=client.db('bistroDb').collection('reviews')
     const cartCollection=client.db('bistroDb').collection('carts')
+
+    //jwt related api
+    app.post('/jwt',async(req,res)=>{
+      const user=req.body
+      console.log(user);
+      const token=jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:'1h'})
+      res.send(token)
+    })
+
 
     app.get('/users',async(req,res)=>{
       const result=await userCollection.find().toArray()
@@ -64,11 +74,11 @@ async function run() {
     })
 
     //delete functionality
-    app.delete('users/:id',async(req,res)=>{
-      const id =req.params.id
-      const query={_id:new ObjectId(id)}
-      const result=await userCollection.deleteOne(query)
-      res.send(result)
+    app.delete('/users/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
     })
 
     //menu related api
