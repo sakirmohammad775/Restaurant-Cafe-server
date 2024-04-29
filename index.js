@@ -38,12 +38,21 @@ async function run() {
       const user=req.body
       console.log(user);
       const token=jwt.sign(user,process.env.ACCESS_TOKEN_SECRET,{expiresIn:'1h'})
-      res.send(token)
+      res.send({token})
     })
 
+    //middlewares
+    const verifyToken=(req,res,next)=>{
+      console.log('inside verify token',req.headers);
+      if(!req.headers.authorization){
+        return res.status(401).send({message:'forbidden access'})
+      }
+      const token =req.headers.authorization.split(' ')[1]
+      // next()
+    }
 
-    app.get('/users',async(req,res)=>{
-      const result=await userCollection.find().toArray()
+    app.get('/users',verifyToken,async(req,res)=>{
+     const result=await userCollection.find().toArray()
       res.send(result)
 
     })
